@@ -1,0 +1,31 @@
+services:
+  cloudflared:
+    image: cloudflare/cloudflared:latest
+    command: tunnel --no-autoupdate run
+    secrets:
+      - cloudflare_token
+
+    environment:
+      TUNNEL_TOKEN_FILE: /run/secrets/cloudflare_token
+      TZ: Europe/Paris
+
+    volumes:
+      - type: bind
+        source: ./cloudflared
+        target: /etc/cloudflared
+
+    networks:
+      - traefik-net
+    
+    deploy:
+      placement:
+        constraints:
+          - node.role == manager
+
+networks:
+  traefik-net:
+    external: true
+
+secrets:
+  cloudflare_token:
+    external: true
